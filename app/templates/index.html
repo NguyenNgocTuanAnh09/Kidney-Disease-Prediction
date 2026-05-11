@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kidney Disease Prediction</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.15);
+    --danger: #f85149;
+    --danger-glow: rgba(248,81,73,0.15);
+    --success: #3fb950;
+    --success-glow: rgba(63,185,80,0.12);
+    --warning: #d29922;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(22,27,34,0.8);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+  }
+
+  header span {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 0;
+    height: calc(100vh - 65px);
+  }
+
+  .form-panel {
+    overflow-y: auto;
+    padding: 32px 40px;
+    border-right: 1px solid var(--border);
+  }
+
+  .panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .sample-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .sample-btn {
+    flex: 1;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .sample-btn:hover { border-color: var(--accent); color: var(--text); }
+  .sample-btn.ckd:hover { border-color: var(--danger); }
+  .sample-btn .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+  }
+  .sample-btn.ckd .dot { background: var(--danger); }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(59,130,246,0.2);
+  }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .field .unit {
+    font-size: 10px;
+    color: var(--text-muted);
+    opacity: 0.6;
+  }
+
+  .field input[type="number"],
+  .field select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    width: 100%;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .field input[type="number"]::-webkit-outer-spin-button,
+  .field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .toggle-group {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .toggle-group button {
+    flex: 1;
+    padding: 8px 6px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-group button.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+
+  .submit-bar {
+    margin-top: 28px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-predict {
+    flex: 1;
+    padding: 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-predict:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+  }
+
+  .btn-predict:active { transform: translateY(0); }
+
+  .btn-reset {
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-reset:hover { border-color: var(--text-muted); color: var(--text); }
+
+  .result-panel {
+    padding: 32px 28px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .idle-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+    opacity: 0.4;
+  }
+
+  .idle-icon {
+    width: 56px; height: 56px;
+    border: 2px dashed var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+
+  .result-card {
+    display: none;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card.show { display: block; }
+
+  .result-header {
+    padding: 24px;
+    text-align: center;
+  }
+
+  .result-header.ckd {
+    background: var(--danger-glow);
+    border-bottom: 1px solid rgba(248,81,73,0.2);
+  }
+
+  .result-header.normal {
+    background: var(--success-glow);
+    border-bottom: 1px solid rgba(63,185,80,0.2);
+  }
+
+  .result-emoji { font-size: 40px; margin-bottom: 10px; }
+
+  .result-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .result-label.ckd { color: var(--danger); }
+  .result-label.normal { color: var(--success); }
+
+  .result-message {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .prob-section {
+    padding: 20px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prob-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .prob-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .prob-bar-bg {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .prob-bar-fill.ckd { background: var(--danger); }
+  .prob-bar-fill.normal { background: var(--success); }
+
+  .stats-grid {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-item {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .warning-note {
+    padding: 16px 24px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(210,153,34,0.08);
+    border-top: 1px solid rgba(210,153,34,0.2);
+  }
+
+  .warning-note .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  .warning-note p {
+    font-size: 12px;
+    color: var(--warning);
+    line-height: 1.5;
+  }
+
+  .history-section { }
+
+  .history-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .history-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .history-dot.ckd { background: var(--danger); }
+  .history-dot.normal { background: var(--success); }
+
+  .history-info { flex: 1; }
+  .history-label { font-weight: 500; color: var(--text); }
+  .history-time { color: var(--text-muted); font-size: 11px; }
+  .history-prob { color: var(--text-muted); margin-left: auto; }
+
+  .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🫘</div>
+  <h1>Kidney Disease Prediction</h1>
+  <span>ML Demo · CKD Dataset</span>
+</header>
+
+<main>
+  <div class="form-panel">
+    <p class="panel-title">Nhập thông số bệnh nhân</p>
+
+    <form id="predictForm">
+
+      <div class="section">
+        <div class="section-label">Chỉ số xét nghiệm</div>
+        <div class="fields-grid">
+          {% set numeric_features = ['age','blood_pressure','specific_gravity','blood_glucose_random',
+             'blood_urea','serum_creatinine','sodium','potassium','hemoglobin',
+             'packed_cell_volume','white_blood_cell_count','red_blood_cell_count'] %}
+          {% for feat in numeric_features %}
+          {% set info = feature_info[feat] %}
+          <div class="field">
+            <label>{{ info.label }}
+              {% if info.unit %}<span class="unit">({{ info.unit }})</span>{% endif %}
+            </label>
+            <input type="number"
+                   id="{{ feat }}"
+                   name="{{ feat }}"
+                   step="any"
+                   min="{{ info.min }}" 
+                   max="{{ info.max }}"
+                   value="{{ info.min }}"
+                   required>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Albumin & Đường</div>
+        <div class="fields-grid">
+          {% for feat in ['albumin', 'sugar'] %}
+          {% set info = feature_info[feat] %}
+          <div class="field">
+            <label>{{ info.label }}</label>
+            <select id="{{ feat }}" name="{{ feat }}">
+              {% for opt in info.options %}
+              <option value="{{ opt / 5.0 }}">{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Chẩn đoán lâm sàng</div>
+        <div class="fields-grid">
+          {% set toggle_features = ['red_blood_cells','pus_cell','pus_cell_clumps','bacteria',
+             'hypertension','diabetes_mellitus','coronary_artery_disease',
+             'appetite','pedal_edema','anemia'] %}
+          {% for feat in toggle_features %}
+          {% set info = feature_info[feat] %}
+          <div class="field">
+            <label>{{ info.label }}</label>
+            <div class="toggle-group" id="tg_{{ feat }}">
+              <button type="button" class="active" onclick="setToggle('{{ feat }}', 0, this)">
+                {{ info.options[0] }}
+              </button>
+              <button type="button" onclick="setToggle('{{ feat }}', 1, this)">
+                {{ info.options[1] }}
+              </button>
+            </div>
+            <input type="hidden" id="{{ feat }}" name="{{ feat }}" value="0">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <button type="submit" class="btn-predict" id="submitBtn">
+          <span id="btnText">Dự đoán</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+        <button type="button" class="btn-reset" onclick="resetForm()">Reset</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="result-panel">
+    <p class="panel-title">Kết quả dự đoán</p>
+
+    <div class="idle-state" id="idleState">
+      <div class="idle-icon">🔬</div>
+      <p style="font-size:13px; color: var(--text-muted); line-height:1.5">
+        Nhập thông số bệnh nhân<br>và nhấn <strong>Dự đoán</strong>
+      </p>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-header" id="resultHeader">
+        <div class="result-emoji" id="resultEmoji"></div>
+        <div class="result-label" id="resultLabel"></div>
+        <div class="result-message" id="resultMessage"></div>
+      </div>
+
+      <div class="prob-section">
+        <div class="prob-label">
+          <span>Xác suất bị CKD</span>
+          <span class="prob-value" id="probValue">—</span>
+        </div>
+        <div class="prob-bar-bg">
+          <div class="prob-bar-fill" id="probBar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="warning-note">
+        <span class="icon">⚠️</span>
+        <p>Kết quả chỉ mang tính tham khảo. Vui lòng tham khảo ý kiến bác sĩ chuyên khoa để có chẩn đoán chính xác.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+</div>
+
+<script>
+const FEATURES = {{ features | tojson }};
+const SAMPLE_CKD = {{ sample_ckd | tojson }};
+const SAMPLE_NORMAL = {{ sample_normal | tojson }};
+
+let history = [];
+let predCount = 0;
+
+function setToggle(feat, val, btn) {
+  document.getElementById(feat).value = val;
+  const group = document.getElementById('tg_' + feat);
+  group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function loadSample(type) {
+  const vals = type === 'ckd' ? SAMPLE_CKD : SAMPLE_NORMAL;
+  const toggleFeats = ['red_blood_cells','pus_cell','pus_cell_clumps','bacteria',
+    'hypertension','diabetes_mellitus','coronary_artery_disease',
+    'appetite','pedal_edema','anemia'];
+  const selectFeats = ['albumin','sugar'];
+
+  FEATURES.forEach((feat, i) => {
+    const el = document.getElementById(feat);
+    if (!el) return;
+
+    if (toggleFeats.includes(feat)) {
+      el.value = vals[i];
+      const group = document.getElementById('tg_' + feat);
+      if (group) {
+        group.querySelectorAll('button').forEach((b, bi) => {
+          b.classList.toggle('active', bi === Math.round(vals[i]));
+        });
+      }
+    } else if (selectFeats.includes(feat)) {
+      const sel = el;
+      let best = null, bestDiff = Infinity;
+      for (const opt of sel.options) {
+        const diff = Math.abs(parseFloat(opt.value) - vals[i]);
+        if (diff < bestDiff) { bestDiff = diff; best = opt; }
+      }
+      if (best) best.selected = true;
+    } else {
+      el.value = parseFloat(vals[i]).toFixed(4);
+    }
+  });
+}
+
+function resetForm() {
+  FEATURES.forEach(feat => {
+    const el = document.getElementById(feat);
+    if (!el) return;
+    if (el.tagName === 'SELECT') { el.selectedIndex = 0; }
+    else { el.value = 0; }
+  });
+  // reset toggles
+  document.querySelectorAll('.toggle-group').forEach(g => {
+    g.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === 0));
+  });
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('idleState').style.display = 'flex';
+}
+
+document.getElementById('predictForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('spinner');
+  btnText.style.display = 'none';
+  spinner.style.display = 'block';
+
+  const data = {};
+  FEATURES.forEach(feat => {
+    const el = document.getElementById(feat);
+    data[feat] = el ? parseFloat(el.value) || 0 : 0;
+  });
+
+  try {
+    const res = await fetch('/predict', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+
+    if (result.success) showResult(result);
+    else alert('Lỗi: ' + result.error);
+  } catch (err) {
+    alert('Không thể kết nối server.');
+  } finally {
+    btnText.style.display = 'inline';
+    spinner.style.display = 'none';
+  }
+});
+
+function showResult(result) {
+  const isCKD = result.prediction === 1;
+  const prob = result.probability;
+  const pct = (prob * 100).toFixed(1);
+
+  document.getElementById('idleState').style.display = 'none';
+
+  const header = document.getElementById('resultHeader');
+  header.className = 'result-header ' + (isCKD ? 'ckd' : 'normal');
+
+  document.getElementById('resultEmoji').textContent = isCKD ? '🔴' : '🟢';
+
+  const lbl = document.getElementById('resultLabel');
+  lbl.className = 'result-label ' + (isCKD ? 'ckd' : 'normal');
+  lbl.textContent = isCKD ? 'Bệnh thận mãn tính' : 'Không bị bệnh thận';
+
+  document.getElementById('resultMessage').textContent = result.message;
+  document.getElementById('probValue').textContent = pct + '%';
+
+  const bar = document.getElementById('probBar');
+  bar.className = 'prob-bar-fill ' + (isCKD ? 'ckd' : 'normal');
+  setTimeout(() => bar.style.width = pct + '%', 50);
+
+  document.getElementById('resultCard').classList.add('show');
+
+  predCount++;
+  history.unshift({ label: result.label, isCKD, prob: pct, time: new Date().toLocaleTimeString('vi-VN') });
+  if (history.length > 5) history.pop();
+}
+</script>
+</body>
+</html>
