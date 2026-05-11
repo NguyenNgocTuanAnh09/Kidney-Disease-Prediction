@@ -52,7 +52,7 @@ Biến mục tiêu: classification.
 0 → Not CKD (Không mắc bệnh)
 
 ## 🔬 Các nhóm đặc trưng
-Biến số học (Numeric) và phân loại (Categorical)
+Biến số học (Numeric) 
 
 Age
 
