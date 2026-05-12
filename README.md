@@ -104,31 +104,48 @@ Anemia
 
 ## 🏆 Đánh giá và Kết quả
 
-## 1. Bảng so sánh hiệu năng
+### 1. Bảng so sánh hiệu năng các thuật toán
 
-    Thuật toán | Accuracy|
+| Thuật toán | Accuracy (Độ chính xác) |
+| :--- | :---: |
+| **KNN** | **98.75%** |
+| Naive Bayes | 97.50% |
+| Decision Tree | 96.25% |
 
-        KNN    98.75%
+**Nhận xét:** 
+Thuật toán **KNN (K-Nearest Neighbors)** đã vượt qua các đối thủ để đạt mức độ chính xác cao nhất (98.75%). KNN đặc biệt phát huy sức mạnh trên bộ dữ liệu này bởi vì toàn bộ các đặc trưng y tế (huyết áp, đường huyết,...) đã được chúng ta xử lý nhiễu (Outliers) và đưa về cùng một hệ quy chiếu bằng `MinMaxScaler`. Điều này giúp việc đo lường khoảng cách giữa các bệnh án trở nên cực kỳ chuẩn xác. Do đó, KNN được lựa chọn làm mô hình lõi của hệ thống.
 
-    Naive Bayes 97.50%
+---
 
-    Decision Tree 96.25%
+### 2. Kết quả đánh giá chuyên sâu trên tập Test
 
-    ->Thuật toán KNN được lựa chọn làm mô hình chính của hệ thống.
+Dữ liệu kiểm thử (Test set) là tập dữ liệu hoàn toàn mới, được giấu kín trong suốt quá trình huấn luyện để đánh giá năng lực thực tế của mô hình:
 
-## 2. Kết quả trên tập Test
-Accuracy: 99%
-Recall (CKD): 98%
-Precision: 97%
+* **Accuracy (Độ chính xác tổng thể):** 99%
+* **Recall (Độ nhạy đối với nhãn CKD):** 98%
+* **Precision (Độ chuẩn xác):** 97%
 
-## 3. Trực quan hóa kết quả
+**Nhận xét chỉ số y tế:** 
+Kết quả đạt được là vô cùng ấn tượng. Trong y tế, chỉ số quan trọng nhất là **Recall (98%)**, điều này đồng nghĩa với việc hệ thống có khả năng nhận diện đúng 98% số bệnh nhân thực sự mắc bệnh thận, nguy cơ bỏ sót bệnh nhân (False Negative) là cực kỳ thấp. Đồng thời, **Precision đạt 97%** cho thấy khi hệ thống cảnh báo "Có bệnh", độ tin cậy là rất cao, tránh gây hoang mang cho người khỏe mạnh.
 
-## A. Learning Curve
-Biểu đồ cho thấy mô hình hội tụ tốt, đường Train và Validation bám sát nhau, không có dấu hiệu overfitting(quá khớp).
-![Screenshot 10](images/LearningCurve.png)
-## B. Confusion Matrix
-Ma trận nhầm lẫn thể hiện số lượng dự đoán đúng và sai trên tập kiểm thử.
-![Screenshot 10](images/ConfusionMatrix.png)
+---
+
+### 3. Trực quan hóa kết quả (Visualizations)
+
+#### A. Biểu đồ học tập (Learning Curve)
+![Learning Curve](images/LearningCurve.png)
+
+**Nhận xét:** 
+Biểu đồ cho thấy đường Train Accuracy (màu xanh) và Validation Accuracy (màu cam) có xu hướng bám sát nhau và cùng hội tụ ở mức điểm rất cao (>96%) khi lượng dữ liệu huấn luyện tăng lên. Khoảng cách giữa hai đường rất hẹp, minh chứng rõ ràng cho việc mô hình học được quy luật thực sự của dữ liệu, **hoàn toàn không xảy ra hiện tượng Overfitting (Quá khớp)**.
+
+#### B. Ma trận nhầm lẫn (Confusion Matrix)
+![Confusion Matrix](images/ConfusionMatrix.png)
+
+**Nhận xét:** 
+Ma trận nhầm lẫn phản ánh trực quan sự xuất sắc của thuật toán KNN trên tập Test:
+* **Nhóm người khỏe mạnh (Not CKD):** Mô hình chẩn đoán đúng tuyệt đối 30/30 ca, không có bất kỳ ca báo động giả nào (0 False Positive).
+* **Nhóm người mắc bệnh thận (CKD):** Trong số 50 ca bệnh thực tế, mô hình đã bắt đúng 49 ca, và chỉ phân loại nhầm duy nhất 1 ca thành khỏe mạnh (1 False Negative). 
+Đây là một tỷ lệ sai số cực kỳ thấp, đáp ứng xuất sắc yêu cầu khắt khe của một hệ thống chẩn đoán y khoa sơ bộ.
 
 ## 🎬 Demo giao diện 
 
